@@ -1,0 +1,20 @@
+language: cpp
+before_script:
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq g++-7 
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 60 
+  - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
+  - sudo apt-get update
+  - sudo apt-get install libopenblas-dev libdlib-dev
+script:
+  - cmake -H. -BBuild
+  - cmake --build Build
+#  - cmake --build Build --target test
+  - cmake --build Build --target package
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script:
+    - curl -T Build/realty-*.$TRAVIS_BUILD_NUMBER-Linux.deb -utatyana-otus:$BINTRAY_API_KEY "https://api.bintray.com/content/tatyana-otus/hw_otus/realty/$TRAVIS_BUILD_NUMBER/realty-1.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+ 
