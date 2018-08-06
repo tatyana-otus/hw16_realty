@@ -5,6 +5,8 @@ project(realty VERSION 1.0.$ENV{TRAVIS_BUILD_NUMBER})
 add_executable(rclst rclst.cpp)
 add_executable(rclss rclss.cpp)
 
+find_package(Boost COMPONENTS system  REQUIRED)
+
 target_include_directories(rclst PRIVATE ./include)
 target_include_directories(rclss PRIVATE ./include)
 
@@ -14,13 +16,14 @@ set_target_properties(rclst rclss PROPERTIES
   COMPILE_OPTIONS -Wall -Wextra -Wpedantic 
 )
 
-target_link_libraries(rclst openblas dlib )
-target_link_libraries(rclss openblas dlib)
+target_link_libraries(rclst ${Boost_LIBRARIES} openblas dlib )
+target_link_libraries(rclss ${Boost_LIBRARIES} openblas dlib)
 
 install(TARGETS rclst RUNTIME DESTINATION bin)
 install(TARGETS rclss RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")

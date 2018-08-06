@@ -6,7 +6,7 @@ before_script:
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 60 
   - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
   - sudo apt-get update
-  - sudo apt-get install libopenblas-dev libdlib-dev
+  - sudo apt-get install libboost-system-dev libopenblas-dev libdlib-dev
 script:
   - cmake -H. -BBuild
   - cmake --build Build
