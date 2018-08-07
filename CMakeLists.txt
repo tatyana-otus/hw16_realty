@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.2)
 
 project(realty VERSION 1.0.$ENV{TRAVIS_BUILD_NUMBER})
 
+if($ENV{TRAVIS_BUILD_NUMBER})
+  add_subdirectory(dlib)
+endif()
+
+
 add_executable(rclst rclst.cpp)
 add_executable(rclss rclss.cpp)
 
