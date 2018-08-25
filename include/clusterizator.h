@@ -168,7 +168,7 @@ private:
     {
         typedef radial_basis_kernel<sample_type> kernel_type;
 
-        kcentroid<kernel_type> kc(kernel_type(0.1),1, 2);
+        kcentroid<kernel_type> kc(kernel_type(0.1), 0.01, 8);
 
         kkmeans<kernel_type> test(kc);
         
