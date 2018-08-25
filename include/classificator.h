@@ -16,11 +16,10 @@ struct classificator
 	}
 
 
-    double make_design(const sample_type & coord)
+    double make_design(const sample_type & coord) const
     {   
         auto test_coord = coord;
         for(int i = 0; i < N; ++i){
-            //test_coord(i) = (test_coord(i) - norm_coef[i][0] ) / norm_coef[i][1];
             test_coord(i) = test_coord(i) / norm_coef[i][1];
         }
 
@@ -35,6 +34,10 @@ struct classificator
         std::string fn = fn_base + "." + std::to_string(num);
         std::ifstream ifs(fn);
 
+        if (!ifs.is_open()) {
+            throw std::invalid_argument("File could not be opened");
+        }
+
         for(std::string line; std::getline(ifs, line);){ 
                 
             std::vector<std::string> data;
@@ -43,9 +46,8 @@ struct classificator
             
             std::array<double, N> coord;
             try {
-                for(int i = 0; i < N ; ++i) {
-                    coord[i] = std::stod(data[i]);
-                }
+                std::generate_n(coord.begin(), N, [i = 0, &data] () mutable 
+                                                  { return std::stod(data[i++]); });
             }
             catch(const std::exception &e) {
                 throw std::invalid_argument("Invalid input: " + line);
@@ -59,7 +61,7 @@ struct classificator
     }
 
 private:
-    void out_cluster_data(std::vector<std::array<double, N>>& raw_data)
+    void out_cluster_data(const std::vector<std::array<double, N>>& raw_data) const
     {
         for(size_t i = 0; i < raw_data.size(); ++i){
             std::cout << std::fixed << std::setprecision(precision[0]);
@@ -73,12 +75,12 @@ private:
     }
 
 
-    void sort_cluster_data(std::vector<std::array<double, N>>& raw_data, const sample_type& coord)
+    void sort_cluster_data(std::vector<std::array<double, N>>& raw_data, const sample_type& coord) const
     {
         auto x = coord(0);
         auto y = coord(1);
 
-        std::sort(raw_data.begin(), raw_data.end(), [x, y](const std::array<double, N>& a, const std::array<double, N>& b){
+        std::sort(raw_data.begin(), raw_data.end(), [x, y](const auto& a, const auto& b){
         return (std::sqrt(std::pow(x - a[0], 2) + std::pow(y - a[1], 2)) < std::sqrt(std::pow(x - b[0], 2) + std::pow(y - b[1], 2)));
         });
     }
@@ -89,15 +91,15 @@ private:
         std::string fn = fn_base + ".coef";
         std::ifstream ifs(fn);
 
+        if (!ifs.is_open()) {
+            throw std::invalid_argument("File could not be opened");
+        }
+
         int n;
         ifs >> n;
         for(int i = 0; i < N; ++i){
            ifs >> norm_coef[i][0];
            ifs >> norm_coef[i][1];
-        }
-
-        for(int i = 0; i < N; ++i){
-           std::cout << norm_coef[i][0] << " " << norm_coef[i][1] << "\n";
         }
     }
 

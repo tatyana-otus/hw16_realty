@@ -69,20 +69,14 @@ private:
 
             auto min_max = std::minmax_element(raw_coord[i].begin(), raw_coord[i].end());
 
-            auto min = *min_max.first;
-            auto max = *min_max.second;
-            dists[i] = max - min;
-            std::transform(raw_coord[i].begin(), raw_coord[i].end(), back_inserter(norm_coord[i]),
-                        [min](double val) { return val; });
-
-            norm_coef[i][0] = min;
+            dists[i] = *min_max.second - *min_max.first;
+            norm_coef[i][0] = *min_max.first;
         }
 
         auto dist = std::max(dists[0], dists[1]);
         for(int i = 0; i < 2; ++i){
-            std::transform(norm_coord[i].begin(), norm_coord[i].end(), norm_coord[i].begin(),
+            std::transform(raw_coord[i].begin(), raw_coord[i].end(), back_inserter(norm_coord[i]),
                        [dist](double val) { return val / dist; });
-
             norm_coef[i][1] = dist;
         }
 
@@ -96,7 +90,7 @@ private:
             auto max = *min_max.second;
 
             std::transform(raw_coord[i].begin(), raw_coord[i].end(), back_inserter(norm_coord[i]),
-                        [min, max](double val) { return val / max; });
+                        [max](double val) { return val / max; });
             norm_coef[i][0] = min;
             norm_coef[i][1] = max;
         }
@@ -116,7 +110,7 @@ private:
     }
 
 
-    void save_norm_coord()
+    void save_norm_coord() const
     {
         std::vector<std::ofstream> fs;
         for(int i = 0; i < clusters_num; ++i){
@@ -135,7 +129,7 @@ private:
     }
 
 
-    void save_raw_coord()
+    void save_raw_coord() const
     {
         std::vector<std::ofstream> fs;
         for(int i = 0; i < clusters_num; ++i){
@@ -158,7 +152,7 @@ private:
     }
 
 
-    void save_norm_coef()
+    void save_norm_coef() const
     {
         std::string fn = fn_base + ".coef";
         std::ofstream of(fn);
@@ -172,9 +166,8 @@ private:
 
     void get_labels()
     {
-
         typedef radial_basis_kernel<sample_type> kernel_type;
-        //kcentroid<kernel_type> kc(kernel_type(0.001),0.01, 8);
+
         kcentroid<kernel_type> kc(kernel_type(0.1),1, 2);
 
         kkmeans<kernel_type> test(kc);
@@ -192,15 +185,12 @@ private:
     }
 
 
-    void save_df()
+    void save_df() 
     {
-
         ovo_trainer trainer;
 
         krr_trainer<rbf_kernel> rbf_trainer;
         svm_nu_trainer<poly_kernel> poly_trainer;
-        //poly_trainer.set_kernel(poly_kernel(0.001, 1, 2));
-        //rbf_trainer.set_kernel(rbf_kernel(0.001));
 
         poly_trainer.set_kernel(poly_kernel(0.1, 1, 2));
         rbf_trainer.set_kernel(rbf_kernel(0.1));
